@@ -1,4 +1,5 @@
 #pragma once
+#include "number.h"
 #include <string>
 #include <stack>
 
@@ -8,19 +9,19 @@ public:
 	Calculator(const std::string &_formula);
 
 	//подсчет значения выражения
-	double countExpression(double xArgument, double yArgument);
+	Number countExpression(Number &xArgument, Number &yArgument);
 	
 private:
-	std::string formula;
-	std::stack<double> numbers; //стек для чисел
+	const std::string formula;
+	std::stack<Number> numbers; //стек для чисел
 	std::stack<std::string> operations; //стек для операций
 
 	//получение числа для выполнения операции
-	double getOperand();
+	Number getOperand();
 
 	//подсчет верхней в стеке операции
 	void countOperation();
 
 	//получение приоритета операции
-	int getPriority(std::string &operation);
+	int getPriority(const std::string &operation);
 };

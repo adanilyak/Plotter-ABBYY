@@ -1,4 +1,5 @@
 #include "calculator.h"
+#include "number.h"
 #include <string>
 #include <exception>
 #include <stack>
@@ -9,11 +10,11 @@ Calculator::Calculator(const std::string &_formula) :
 }
 
 //получение числа для выполнения операции
-double Calculator::getOperand() {
+Number Calculator::getOperand() {
 	if (numbers.empty()) {
 		throw std::logic_error("wrong expression");
 	}
-	double result = numbers.top();
+	Number result = numbers.top();
 	numbers.pop();
 
 	return result;
@@ -33,14 +34,14 @@ void Calculator::countOperation() {
 		throw std::logic_error("mismatched brackets");
 	}
 
-	double secondOperand = getOperand();
+	Number secondOperand = getOperand();
 
 	if (operation == "!") {
-		numbers.push( 1 /*getFactorial(secondOperand)*/ );
+		numbers.push( secondOperand.getFactorial() );
 		return;
 	}
 
-	double firstOperand = getOperand();
+	Number firstOperand = getOperand();
 
 	//подсчет значения операции для полученных операндов
 	if (operation == "+") {
@@ -55,7 +56,7 @@ void Calculator::countOperation() {
 }
 
 //получение приоритета операции
-int Calculator::getPriority(std::string &operation) {
+int Calculator::getPriority(const std::string &operation) {
 	if ((operation == "+") || (operation == "-")) {
 		return 1;
 	} else if ((operation == "*") || (operation == "/")) {
@@ -66,7 +67,7 @@ int Calculator::getPriority(std::string &operation) {
 }
 
 //подсчет значения выражения
-double Calculator::countExpression(double xArgument, double yArgument) {
+Number Calculator::countExpression(Number &xArgument, Number &yArgument) {
 	size_t posInArgument = 0;
 	while (posInArgument < formula.length()) {
 		std::string currentToken = "";
@@ -78,7 +79,7 @@ double Calculator::countExpression(double xArgument, double yArgument) {
 				currentToken += formula[posInArgument + 1];
 				++posInArgument;
 			}
-			double currentNumber = stod(currentToken);
+			Number currentNumber = Number(stod(currentToken));
 			numbers.push(currentNumber);
 		} else if (currentToken == "x") {
 			numbers.push(xArgument);
@@ -117,7 +118,7 @@ double Calculator::countExpression(double xArgument, double yArgument) {
 	if (numbers.empty()) {
 		throw std::logic_error("wrong expression");
 	} else {
-		double result = numbers.top();
+		Number result = numbers.top();
 		numbers.pop();
 		if (!numbers.empty()) {
 			throw std::logic_error("wrong expression");

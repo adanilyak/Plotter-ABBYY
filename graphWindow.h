@@ -5,7 +5,7 @@
 
 class GraphWindow {
 public:
-	GraphWindow(int width, int height, MathCore& mathCore);
+	GraphWindow(int width, int height, MathCore &mathCore);
 	~GraphWindow();
 
 	static bool RegisterClass(HINSTANCE hInstance);

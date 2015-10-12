@@ -1,7 +1,7 @@
 #include "GP.h"
 #include <vector> 
 #include <math.h>
-using namespace std;
+
 #define MinLenthOfSection 5
 #define MaxLengthOfSection 50
 
@@ -10,7 +10,8 @@ using namespace std;
 // Данный класс предназначен для поточечного представления графика в зависимости от положения осей 
 // получает на вход точки, длину стороны сетки, и углы под которыми расположены оси по отношению к стандартному положению оси X(----->)
 GP::GP(const MathCore& inputMCore, double inputLengthOfSection, const vector<double>& inputAnglesOfAxis, pair<double, double> inputWindowSize )
-	: mCore( inputMCore ) {
+	: mCore( inputMCore ) 
+{
 	windowSize = inputWindowSize;
 	origin.first = windowSize.first / 2;
 	origin.second = windowSize.second / 2;
@@ -26,8 +27,6 @@ GP::GP(const MathCore& inputMCore, double inputLengthOfSection, const vector<dou
 	generateNet();
 	calculateRelativePoints();
 }
-
-
 
 void GP::generateNet() {
 	double size;
@@ -115,6 +114,7 @@ void GP::moveAlongX( int num ) {
 	//generateNet();
 	calculateRelativePoints();
 }
+
 void GP::moveAlongY( int num ) {
 	origin.first += num*lengthOfSection * cos( M_PI * anglesOfAxis[1] / 180 );
 	origin.second += num*lengthOfSection * sin( M_PI * anglesOfAxis[1] / 180 );

@@ -1,4 +1,6 @@
 #include "mathCore.h"
+#include "number.h"
+#include <string>
 #include <iostream>
 #include <exception>
 
@@ -15,7 +17,10 @@ MathCore::~MathCore() {
 
 double MathCore::calculate(double x, double y) {
 	try {
-		return calc.countExpression(x + globalXShift, y + globalYShift) - globalZShift;
+		Number result = calc.countExpression(Number(x) + globalXShift, Number(y) + globalYShift) - globalZShift;
+		std::string strResult;
+		result.serialize(strResult);
+		return std::stod(strResult);
 	}
 	catch (std::logic_error catchedException) {
 		std::cout << catchedException.what() << ", impossible to count" << '\n';
@@ -24,7 +29,7 @@ double MathCore::calculate(double x, double y) {
 }
 
 void MathCore::changeWindowCoordinates(double x, double y, double z) {
-	globalXShift = globalXShift + x;
-	globalYShift = globalYShift + y;
-	globalZShift = globalZShift + z;
+	globalXShift = globalXShift + Number(x);
+	globalYShift = globalYShift + Number(y);
+	globalZShift = globalZShift + Number(z);
 }

@@ -14,7 +14,7 @@ public:
 
 private:
 	Calculator calc;
-	double globalXShift;
-	double globalYShift;
-	double globalZShift;
+	Number globalXShift;
+	Number globalYShift;
+	Number globalZShift;
 };
