@@ -9,8 +9,10 @@
 // Graph in Points
 // Данный класс предназначен для поточечного представления графика в зависимости от положения осей 
 // получает на вход точки, длину стороны сетки, и углы под которыми расположены оси по отношению к стандартному положению оси X(----->)
-GP::GP(const MathCore& inputMCore, double inputLengthOfSection, const vector<double>& inputAnglesOfAxis, pair<double, double> inputWindowSize )
-	: mCore( inputMCore ) 
+GP::GP(const MathCore& inputMCore, double inputLengthOfSection, const std::vector<double>& inputAnglesOfAxis, 
+	std::pair<double, double> inputWindowSize )
+
+	: mCore( inputMCore )
 {
 	windowSize = inputWindowSize;
 	origin.first = windowSize.first / 2;
@@ -24,11 +26,12 @@ GP::GP(const MathCore& inputMCore, double inputLengthOfSection, const vector<dou
 	relativeAxis[0] = Vector( 1, 0, 0 );
 	relativeAxis[1] = Vector( 0, 1, 0 );
 	relativeAxis[2] = Vector( 0, 0, 1 );
-	generateNet();
+	prevRelativeAxis = relativeAxis;
+	generateGrid();
 	calculateRelativePoints();
 }
 
-void GP::generateNet() {
+void GP::generateGrid() {
 	double size;
 	if( windowSize.first > windowSize.second ){
 		size = windowSize.first;
@@ -36,16 +39,15 @@ void GP::generateNet() {
 	else {
 		size = windowSize.second;
 	}
-	//int netSize = (int)(size / lengthOfSection) / 2 * 2;
-	int netSize = 40;
+	int gridSize = (int)(size/ lengthOfSection) / 2 * 2;
 
-	points.resize( netSize );
-	relativePoints.resize( netSize );
-	for( int i = 0; i < netSize; i++ ) {
-		points[i].resize( netSize );
-		relativePoints[i].resize( netSize );
-		for( int j = 0; j < netSize; j++ ) {
-			points[i][j] = mCore.calculate( i - netSize /2 , j - netSize / 2 );
+	points.resize(gridSize);
+	relativePoints.resize(gridSize);
+	for( int i = 0; i < gridSize; i++ ) {
+		points[i].resize(gridSize);
+		relativePoints[i].resize(gridSize);
+		for( int j = 0; j < gridSize; j++ ) {
+			points[i][j] = mCore.calculate( i - gridSize /2 , j - gridSize / 2 );
 		}
 	}
 }
@@ -81,12 +83,12 @@ void GP::turnRoundVector( int angle, Vector vector ) {
 	}
 }
 
-vector<vector<pair<double, double>>> GP::getRelativePoints() {
+std::vector<std::vector<std::pair<double, double>>> GP::getRelativePoints() {
 	return relativePoints;
 }
 
 // возвращает направляющий вектор относительной( подвижной ) системы отсчета. Номера осей X - 0, Y - 1, Z - 2
-pair<double, double> GP::getAxisVector( int axisNum ) {
+std::pair<double, double> GP::getAxisVector( int axisNum ) {
 	// получаем координаты неподвижной системы отсчета в 2D
 	double x0 = cos( M_PI * anglesOfAxis[0] / 180 );
 	double y0 = sin( M_PI * anglesOfAxis[0] / 180 );
@@ -97,55 +99,72 @@ pair<double, double> GP::getAxisVector( int axisNum ) {
 	// пересчитываем координаты осей относительной( подвижной ) системы отсчета в 2D, используя координаты неподвижной системы
 	double relX = x0 * relativeAxis[axisNum].x + x1 * relativeAxis[axisNum].y + x2 * relativeAxis[axisNum].z;
 	double relY = y0 * relativeAxis[axisNum].x + y1 * relativeAxis[axisNum].y + y2 * relativeAxis[axisNum].z;
-	return pair<double, double>( relX, relY );
+	return std::pair<double, double>( relX, relY );
 }
 
-pair<double, double> GP::getAxisVectorVisual( int axisNum ) {
-	pair<double, double> axis = getAxisVector( axisNum );
+std::pair<double, double> GP::getAxisVectorVisual( int axisNum ) {
+	std::pair<double, double> axis = getAxisVector( axisNum );
 	axis.second = -axis.second;
 	return axis;
 
 }
 
+void GP::rotateToStartAngle() {
+	prevRelativeAxis = relativeAxis;
+	relativeAxis[0] = Vector(1, 0, 0);
+	relativeAxis[1] = Vector(0, 1, 0);
+	relativeAxis[2] = Vector(0, 0, 1);
+}
+
+void GP::rotateToCurrentAngle() {
+	relativeAxis = prevRelativeAxis;
+}
+
 void GP::moveAlongX( int num ) {
-	origin.first += num*lengthOfSection * cos( M_PI * anglesOfAxis[0] / 180 );
-	origin.second += num*lengthOfSection *  sin( M_PI * anglesOfAxis[0] / 180 );
+	rotateToStartAngle();
+
 	mCore.changeWindowCoordinates( num, 0, 0 );
-	//generateNet();
+	generateGrid();
+
+	rotateToCurrentAngle();
 	calculateRelativePoints();
 }
 
 void GP::moveAlongY( int num ) {
-	origin.first += num*lengthOfSection * cos( M_PI * anglesOfAxis[1] / 180 );
-	origin.second += num*lengthOfSection * sin( M_PI * anglesOfAxis[1] / 180 );
+	rotateToStartAngle();
+
 	mCore.changeWindowCoordinates( 0, num, 0 );
-	//generateNet();
+	generateGrid();
+
+	rotateToCurrentAngle();
 	calculateRelativePoints();
 }
 
 void GP::changeScale( int num ) {
 	if( lengthOfSection + num > MinLenthOfSection && lengthOfSection + num <= MaxLengthOfSection ) {
+		mCore.changeScale((lengthOfSection + num) / lengthOfSection);
+
 		lengthOfSection += num;
-		//generateNet();
+		generateGrid();
 		calculateRelativePoints();
 	}
 	
 }
 
-pair<double, double> GP::getOriginCoordinates() {
+std::pair<double, double> GP::getOriginCoordinates() {
 	return origin;
 }
 
 void GP::calculateRelativePoints() {
-	pair<double, double> x = getAxisVectorVisual( 0 );
-	pair<double, double> y = getAxisVectorVisual( 1 );
-	pair<double, double> z = getAxisVectorVisual( 2 );
+	std::pair<double, double> x = getAxisVectorVisual( 0 );
+	std::pair<double, double> y = getAxisVectorVisual( 1 );
+	std::pair<double, double> z = getAxisVectorVisual( 2 );
 	double size = relativePoints.size();
 	for( int i = 0; i < relativePoints.size(); i++ ) {
 		for( int j = 0; j < relativePoints[i].size(); j++ ) {
 			double xRel = origin.first + x.first * ( i - size / 2 ) * lengthOfSection + y.first * (j - size / 2 ) * lengthOfSection + z.first * points[i][j] * lengthOfSection;
 			double yRel = origin.second + x.second * ( i - size / 2 ) * lengthOfSection + y.second * (j - size / 2 ) * lengthOfSection + z.second * points[i][j] * lengthOfSection;
-			relativePoints[i][j] = pair<double, double>( xRel, yRel );
+			relativePoints[i][j] = std::pair<double, double>( xRel, yRel );
 		}
 	}
 }	
