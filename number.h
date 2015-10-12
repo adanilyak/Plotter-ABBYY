@@ -1,40 +1,40 @@
-#pragma once
+п»ї#pragma once
 #include <list>
 #include <string>
 
-//реализация длинных дробных чисел 
+//СЂРµР°Р»РёР·Р°С†РёСЏ РґР»РёРЅРЅС‹С… РґСЂРѕР±РЅС‹С… С‡РёСЃРµР» 
 class Number {
 public:
-	//конструктор из double
+	//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· double
 	Number(double value);
 
-	//конструктор из строки
+	//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· СЃС‚СЂРѕРєРё
 	Number(std::string &token);
 
 	void init(std::string &token);
 
-	//сравнение с нулем
+	//СЃСЂР°РІРЅРµРЅРёРµ СЃ РЅСѓР»РµРј
 	bool equalsZero() const;
 
-	//запись числа в строку
+	//Р·Р°РїРёСЃСЊ С‡РёСЃР»Р° РІ СЃС‚СЂРѕРєСѓ
 	void serialize(std::string &serialized) const;
 
-	//реализация оператора унарного минуса
+	//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° СѓРЅР°СЂРЅРѕРіРѕ РјРёРЅСѓСЃР°
 	Number operator-() const;
 
-	//реализация оператора сложения
+	//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° СЃР»РѕР¶РµРЅРёСЏ
 	Number operator+(const Number &secondOperand) const;
 
-	//реализация оператора вычитания
+	//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° РІС‹С‡РёС‚Р°РЅРёСЏ
 	Number operator-(const Number &secondOperand) const;
 
-	//реализация оператора умножения
+	//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° СѓРјРЅРѕР¶РµРЅРёСЏ
 	Number operator*(const Number &secondOperand) const;
 
-	//реализация оператора деления
+	//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° РґРµР»РµРЅРёСЏ
 	Number operator/(const Number &secondOperand) const;
 
-	//подсчет факториала
+	//РїРѕРґСЃС‡РµС‚ С„Р°РєС‚РѕСЂРёР°Р»Р°
 	Number getFactorial() const;
 
 	friend Number;
@@ -44,24 +44,24 @@ private:
 	bool sign;
 	std::list<int> digits;
 
-	//проверка на отрицательность
+	//РїСЂРѕРІРµСЂРєР° РЅР° РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕСЃС‚СЊ
 	bool lessThanZero() const;
 
-	//удаление ведущих нулей
+	//СѓРґР°Р»РµРЅРёРµ РІРµРґСѓС‰РёС… РЅСѓР»РµР№
 	void delFirstZeros();
 
-	//сложение
+	//СЃР»РѕР¶РµРЅРёРµ
 	Number sum(const Number &secondOperand) const;
 
-	//вычитание
+	//РІС‹С‡РёС‚Р°РЅРёРµ
 	Number diff(const Number &firstOperand, const Number &secondOperand) const;
 
-	//умножение
+	//СѓРјРЅРѕР¶РµРЅРёРµ
 	Number mult(const Number &firstOperand, const Number &secondOperand) const;
 
-	//сравнение по модулю
+	//СЃСЂР°РІРЅРµРЅРёРµ РїРѕ РјРѕРґСѓР»СЋ
 	bool absoluteLess(const Number &secondOperand) const;
 
-	//проверка на натуральность
+	//РїСЂРѕРІРµСЂРєР° РЅР° РЅР°С‚СѓСЂР°Р»СЊРЅРѕСЃС‚СЊ
 	bool isNatural() const;
 };

@@ -1,4 +1,4 @@
-#include <sstream>
+п»ї#include <sstream>
 #include "number.h"
 
 const int DIGITS_AFTER_POINT_NUM = 5;
@@ -32,21 +32,21 @@ void Number::init(std::string &token) {
 		}
 	}
 
-	if (!isFractional) { //дополнение нулями после точки
+	if (!isFractional) { //РґРѕРїРѕР»РЅРµРЅРёРµ РЅСѓР»СЏРјРё РїРѕСЃР»Рµ С‚РѕС‡РєРё
 		for (int afterPointPosition = 0; afterPointPosition < numDigitsAfterPoint; ++afterPointPosition) {
 			digits.push_front(0);
 		}
 	}
 }
 
-//конструктор из строки
+//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· СЃС‚СЂРѕРєРё
 Number::Number(std::string &token) :
 	numDigitsAfterPoint(DIGITS_AFTER_POINT_NUM)
 {
 	init(token);
 }
 
-//конструктор из double
+//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· double
 Number::Number(double value) :
 	numDigitsAfterPoint(DIGITS_AFTER_POINT_NUM)
 {
@@ -56,25 +56,25 @@ Number::Number(double value) :
 	init(stringstream.str());
 }
 
-//проверка на отрицательность
+//РїСЂРѕРІРµСЂРєР° РЅР° РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕСЃС‚СЊ
 bool Number::lessThanZero() const {
 	return !sign;
 }
 
-//удаление ведущих нулей
+//СѓРґР°Р»РµРЅРёРµ РІРµРґСѓС‰РёС… РЅСѓР»РµР№
 void Number::delFirstZeros() {
 	while ((*digits.rbegin() == 0) && (digits.size() > numDigitsAfterPoint + 1)) {
 		digits.pop_back();
 	}
 }
 
-//сложение
+//СЃР»РѕР¶РµРЅРёРµ
 Number Number::sum(const Number &secondOperand) const {
 	Number result = *this;
-	int shift = 0; //перенос разряда
-	std::list<int>::iterator curElement = result.digits.begin(); // итератор по позициям результата
+	int shift = 0; //РїРµСЂРµРЅРѕСЃ СЂР°Р·СЂСЏРґР°
+	std::list<int>::iterator curElement = result.digits.begin(); // РёС‚РµСЂР°С‚РѕСЂ РїРѕ РїРѕР·РёС†РёСЏРј СЂРµР·СѓР»СЊС‚Р°С‚Р°
 	for (std::list<int>::const_iterator plusElement = secondOperand.digits.cbegin(); plusElement != secondOperand.digits.cend(); ++plusElement) {
-		if (curElement == result.digits.end()) { //проверка на наличие позиции для очередного разряда
+		if (curElement == result.digits.end()) { //РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РїРѕР·РёС†РёРё РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЂР°Р·СЂСЏРґР°
 				result.digits.push_back((*plusElement) + shift);
 				curElement = --result.digits.end();
 			}
@@ -85,8 +85,8 @@ Number Number::sum(const Number &secondOperand) const {
 		*curElement %= 10;
 		++curElement;
 	}
-	while (shift != 0) { //выполнение оставшихся переносов разряда
-		if (curElement == result.digits.end()) { //проверка на наличие позиции для очередного разряда
+	while (shift != 0) { //РІС‹РїРѕР»РЅРµРЅРёРµ РѕСЃС‚Р°РІС€РёС…СЃСЏ РїРµСЂРµРЅРѕСЃРѕРІ СЂР°Р·СЂСЏРґР°
+		if (curElement == result.digits.end()) { //РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РїРѕР·РёС†РёРё РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЂР°Р·СЂСЏРґР°
 			result.digits.push_back(shift);
 			curElement = --result.digits.end();
 		}
@@ -101,13 +101,13 @@ Number Number::sum(const Number &secondOperand) const {
 	return result;
 }
 
-//вычитание
+//РІС‹С‡РёС‚Р°РЅРёРµ
 Number Number::diff(const Number &firstOperand, const Number &secondOperand) const {
 	Number result = firstOperand;
-	int shift = 0; //перенос разряда
-	std::list<int>::iterator curElement = result.digits.begin(); // итератор по позициям результата
+	int shift = 0; //РїРµСЂРµРЅРѕСЃ СЂР°Р·СЂСЏРґР°
+	std::list<int>::iterator curElement = result.digits.begin(); // РёС‚РµСЂР°С‚РѕСЂ РїРѕ РїРѕР·РёС†РёСЏРј СЂРµР·СѓР»СЊС‚Р°С‚Р°
 	for (std::list<int>::const_iterator plusElement = secondOperand.digits.cbegin(); plusElement != secondOperand.digits.cend(); ++plusElement) {
-		if (curElement == result.digits.end()) { //проверка на наличие позиции для очередного разряда
+		if (curElement == result.digits.end()) { //РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РїРѕР·РёС†РёРё РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЂР°Р·СЂСЏРґР°
 			result.digits.push_back((*plusElement) + shift);
 			curElement = --result.digits.end();
 		}
@@ -121,8 +121,8 @@ Number Number::diff(const Number &firstOperand, const Number &secondOperand) con
 		}
 		++curElement;
 	}
-	while (shift != 0) { //выполнение оставшихся переносов разряда
-		if (curElement == result.digits.end()) { //проверка на наличие позиции для очередного разряда
+	while (shift != 0) { //РІС‹РїРѕР»РЅРµРЅРёРµ РѕСЃС‚Р°РІС€РёС…СЃСЏ РїРµСЂРµРЅРѕСЃРѕРІ СЂР°Р·СЂСЏРґР°
+		if (curElement == result.digits.end()) { //РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РїРѕР·РёС†РёРё РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЂР°Р·СЂСЏРґР°
 			result.digits.push_back(shift);
 			curElement = --result.digits.end();
 		}
@@ -140,15 +140,15 @@ Number Number::diff(const Number &firstOperand, const Number &secondOperand) con
 	return result;
 }
 
-//умножение
+//СѓРјРЅРѕР¶РµРЅРёРµ
 Number Number::mult(const Number &firstOperand, const Number &secondOperand) const {
 	Number result(std::string("0"));
 	std::list<int>::iterator resFirstElement = result.digits.begin();
 	for (std::list<int>::const_iterator multElement = secondOperand.digits.cbegin(); multElement != secondOperand.digits.cend(); ++multElement) {
-		int shift = 0; //перенос разряда
-		std::list<int>::iterator resElement = resFirstElement; // итератор по позициям результата
+		int shift = 0; //РїРµСЂРµРЅРѕСЃ СЂР°Р·СЂСЏРґР°
+		std::list<int>::iterator resElement = resFirstElement; // РёС‚РµСЂР°С‚РѕСЂ РїРѕ РїРѕР·РёС†РёСЏРј СЂРµР·СѓР»СЊС‚Р°С‚Р°
 		for (std::list<int>::const_iterator curElement = firstOperand.digits.cbegin(); curElement != firstOperand.digits.cend(); ++curElement) {
-			if (resElement == result.digits.end()) { //проверка на наличие позиции для очередного разряда
+			if (resElement == result.digits.end()) { //РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РїРѕР·РёС†РёРё РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЂР°Р·СЂСЏРґР°
 				result.digits.push_back((*multElement) * (*curElement) + shift);
 				resElement = --result.digits.end();
 			}
@@ -159,8 +159,8 @@ Number Number::mult(const Number &firstOperand, const Number &secondOperand) con
 			*resElement %= 10;
 			++resElement;
 		}
-		while (shift != 0) { //выполнение оставшихся переносов разряда
-			if (resElement == result.digits.end()) { //проверка на наличие позиции для очередного разряда
+		while (shift != 0) { //РІС‹РїРѕР»РЅРµРЅРёРµ РѕСЃС‚Р°РІС€РёС…СЃСЏ РїРµСЂРµРЅРѕСЃРѕРІ СЂР°Р·СЂСЏРґР°
+			if (resElement == result.digits.end()) { //РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РїРѕР·РёС†РёРё РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЂР°Р·СЂСЏРґР°
 				result.digits.push_back(shift);
 				resElement = --result.digits.end();
 			}
@@ -177,7 +177,7 @@ Number Number::mult(const Number &firstOperand, const Number &secondOperand) con
 	return result;
 }
 
-//сравнение по модулю
+//СЃСЂР°РІРЅРµРЅРёРµ РїРѕ РјРѕРґСѓР»СЋ
 bool Number::absoluteLess(const Number &secondOperand) const {
 	if (secondOperand.digits.size() > (*this).digits.size()) {
 		return true;
@@ -198,7 +198,7 @@ bool Number::absoluteLess(const Number &secondOperand) const {
 	return false;
 }
 
-//проверка на натуральность
+//РїСЂРѕРІРµСЂРєР° РЅР° РЅР°С‚СѓСЂР°Р»СЊРЅРѕСЃС‚СЊ
 bool Number::isNatural() const {
 	std::list<int>::const_iterator element = digits.cbegin();
 	for (int position = 0; position < numDigitsAfterPoint; ++position) {
@@ -210,7 +210,7 @@ bool Number::isNatural() const {
 	return true;
 }
 
-//сравнение с нулем
+//СЃСЂР°РІРЅРµРЅРёРµ СЃ РЅСѓР»РµРј
 bool Number::equalsZero() const {
 	for (std::list<int>::const_iterator curElement = digits.cbegin(); curElement != digits.cend(); ++curElement) {
 		if (*curElement != 0) {
@@ -220,15 +220,15 @@ bool Number::equalsZero() const {
 	return true;
 }
 
-//запись числа в строку
+//Р·Р°РїРёСЃСЊ С‡РёСЃР»Р° РІ СЃС‚СЂРѕРєСѓ
 void Number::serialize(std::string &serialized) const {
 	serialized = "";
-	if ((!(*this).sign) && (!equalsZero())) { //проверка отрицательности
+	if ((!(*this).sign) && (!equalsZero())) { //РїСЂРѕРІРµСЂРєР° РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕСЃС‚Рё
 		serialized += '-';
 	}
 	int count = 0;
 	for (std::list<int>::const_reverse_iterator curElement = digits.crbegin(); curElement != digits.crend(); ++curElement) {
-		if (digits.size() - count == numDigitsAfterPoint) { //проверка позиции для точки
+		if (digits.size() - count == numDigitsAfterPoint) { //РїСЂРѕРІРµСЂРєР° РїРѕР·РёС†РёРё РґР»СЏ С‚РѕС‡РєРё
 			serialized += '.';
 		}
 		serialized += ('0' + *curElement);
@@ -236,16 +236,16 @@ void Number::serialize(std::string &serialized) const {
 	}
 }
 
-//реализация оператора унарного минуса
+//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° СѓРЅР°СЂРЅРѕРіРѕ РјРёРЅСѓСЃР°
 Number Number::operator-() const {
 	Number result = *this;
 	result.sign = !result.sign;
 	return result;
 }
 
-//реализация оператора сложения
+//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° СЃР»РѕР¶РµРЅРёСЏ
 Number Number::operator+(const Number &secondOperand) const {
-	if (!(secondOperand.sign ^ (*this).sign)) { //проверка на совпадение знака
+	if (!(secondOperand.sign ^ (*this).sign)) { //РїСЂРѕРІРµСЂРєР° РЅР° СЃРѕРІРїР°РґРµРЅРёРµ Р·РЅР°РєР°
 		return sum(secondOperand);
 	}
 		else {
@@ -258,12 +258,12 @@ Number Number::operator+(const Number &secondOperand) const {
 		}
 	}
 
-//реализация оператора вычитания
+//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° РІС‹С‡РёС‚Р°РЅРёСЏ
 Number Number::operator-(const Number &secondOperand) const {
 	return *this + (-secondOperand);
 }
 
-//реализация оператора умножения
+//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° СѓРјРЅРѕР¶РµРЅРёСЏ
 Number Number::operator*(const Number &secondOperand) const {
 	int resultDigitsAfterPoint = numDigitsAfterPoint + numDigitsAfterPoint;
 
@@ -292,23 +292,23 @@ Number Number::operator*(const Number &secondOperand) const {
 		result = mult(positiveFirstOperand, positiveSecondOperand);
 	}
 
-	for (int position = 1; position < numDigitsAfterPoint; ++position) { //удаление лишних символов после запятой
+	for (int position = 1; position < numDigitsAfterPoint; ++position) { //СѓРґР°Р»РµРЅРёРµ Р»РёС€РЅРёС… СЃРёРјРІРѕР»РѕРІ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№
 		result.digits.pop_front();
 	}
 
 	if (numDigitsAfterPoint > 0) {
-		if (*result.digits.begin() >= 5) { //округление до нужной точности
+		if (*result.digits.begin() >= 5) { //РѕРєСЂСѓРіР»РµРЅРёРµ РґРѕ РЅСѓР¶РЅРѕР№ С‚РѕС‡РЅРѕСЃС‚Рё
 			*(++result.digits.begin()) += 1;
 		}
 		result.digits.pop_front();
 	}
 
 	result.numDigitsAfterPoint = numDigitsAfterPoint;
-	result.sign = !((*this).sign ^ secondOperand.sign); //определение знака умножения
+	result.sign = !((*this).sign ^ secondOperand.sign); //РѕРїСЂРµРґРµР»РµРЅРёРµ Р·РЅР°РєР° СѓРјРЅРѕР¶РµРЅРёСЏ
 	return result;
 }
 
-//реализация оператора деления
+//СЂРµР°Р»РёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° РґРµР»РµРЅРёСЏ
 Number Number::operator/(const Number &secondOperand) const {
 	if (secondOperand.equalsZero()) {
 		throw std::logic_error("/ by zero");
@@ -326,7 +326,7 @@ Number Number::operator/(const Number &secondOperand) const {
 	positiveSecondOperand.sign = true;
 
 	for (int position = 0; position <= numDigitsAfterPoint; ++position) {
-		while (!positiveFirstOperand.lessThanZero()) {   //подгоняем текущий разряд
+		while (!positiveFirstOperand.lessThanZero()) {   //РїРѕРґРіРѕРЅСЏРµРј С‚РµРєСѓС‰РёР№ СЂР°Р·СЂСЏРґ
 			positiveFirstOperand = positiveFirstOperand - positiveSecondOperand;
 			result = result + theLeast;
 		}
@@ -337,7 +337,7 @@ Number Number::operator/(const Number &secondOperand) const {
 		positiveFirstOperand = positiveFirstOperand + positiveSecondOperand;
 		result = result - theLeast;
 
-		//сдвигаем на один разряд
+		//СЃРґРІРёРіР°РµРј РЅР° РѕРґРёРЅ СЂР°Р·СЂСЏРґ
 		theLeast.digits.push_back(0);
 		theLeast.digits.pop_front();
 		positiveSecondOperand = secondOperand * theLeast;
@@ -352,7 +352,7 @@ Number Number::operator/(const Number &secondOperand) const {
 	}
 }
 
-//подсчет факториала
+//РїРѕРґСЃС‡РµС‚ С„Р°РєС‚РѕСЂРёР°Р»Р°
 Number Number::getFactorial() const {
 	if (!isNatural()) {
 		throw std::logic_error("wrong expression");

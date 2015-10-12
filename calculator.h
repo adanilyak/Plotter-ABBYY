@@ -1,27 +1,27 @@
-#pragma once
+п»ї#pragma once
 #include "number.h"
 #include <string>
 #include <stack>
 
 class Calculator {
 public:
-	//конструктор калькулятора
+	//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР°
 	Calculator(const std::string &_formula);
 
-	//подсчет значения выражения
+	//РїРѕРґСЃС‡РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІС‹СЂР°Р¶РµРЅРёСЏ
 	Number countExpression(Number &xArgument, Number &yArgument);
 	
 private:
 	const std::string formula;
-	std::stack<Number> numbers; //стек для чисел
-	std::stack<std::string> operations; //стек для операций
+	std::stack<Number> numbers; //СЃС‚РµРє РґР»СЏ С‡РёСЃРµР»
+	std::stack<std::string> operations; //СЃС‚РµРє РґР»СЏ РѕРїРµСЂР°С†РёР№
 
-	//получение числа для выполнения операции
+	//РїРѕР»СѓС‡РµРЅРёРµ С‡РёСЃР»Р° РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё
 	Number getOperand();
 
-	//подсчет верхней в стеке операции
+	//РїРѕРґСЃС‡РµС‚ РІРµСЂС…РЅРµР№ РІ СЃС‚РµРєРµ РѕРїРµСЂР°С†РёРё
 	void countOperation();
 
-	//получение приоритета операции
+	//РїРѕР»СѓС‡РµРЅРёРµ РїСЂРёРѕСЂРёС‚РµС‚Р° РѕРїРµСЂР°С†РёРё
 	int getPriority(const std::string &operation);
 };
