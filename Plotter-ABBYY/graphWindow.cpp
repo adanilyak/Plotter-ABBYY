@@ -207,6 +207,7 @@ void GraphWindow::drawGraph(HDC dc) {
 
 	std::vector< std::vector < std::pair<double, double> > > points = graphInPoints.getRelativePoints();
 
+	POINT test[4];
 	for (size_t i = 0; i < points.size(); ++i) {
 		int size = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
 		POINT* lppoints = new POINT[size];
@@ -214,6 +215,21 @@ void GraphWindow::drawGraph(HDC dc) {
 		for( size_t j = 0; j < size; ++j ) {
 		//	::LineTo(dc, round(points[i][j].first), round(points[i][j].second));
 			lppoints[j] = { round( points[i][j].first ), round( points[i][j].second ) };
+
+			if (i == 15) {
+				if (j == 15) {
+					test[0] = lppoints[j];
+				} else if (j == 16) {
+					test[1] = lppoints[j];
+				}
+			} else if (i == 16) {
+				if (j == 15) {
+					test[3] = lppoints[j];
+				} else if (j == 16) {
+					test[2] = lppoints[j];
+				}
+			}
+
 		}
 		::PolyBezier( dc, lppoints, size );
 
@@ -235,6 +251,10 @@ void GraphWindow::drawGraph(HDC dc) {
 
 		delete[] lppoints;
 	}
+
+	HBRUSH brushFill = ::CreateSolidBrush( RGB( 255, 0, 0 ) );
+	::SelectObject( dc, brushFill );
+	::Polygon( dc, test, 4 );
 
 	::DeleteObject(linePen);
 }
