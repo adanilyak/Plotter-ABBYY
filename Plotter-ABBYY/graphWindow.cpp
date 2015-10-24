@@ -207,7 +207,6 @@ void GraphWindow::drawGraph(HDC dc) {
 
 	std::vector< std::vector < std::pair<double, double> > > points = graphInPoints.getRelativePoints();
 
-	POINT test[4];
 	for (size_t i = 0; i < points.size(); ++i) {
 		int size = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
 		POINT* lppoints = new POINT[size];
@@ -318,6 +317,11 @@ void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<doub
 					tempPolyPoints[3] = secondPointsArray[t];
 					::Polygon(dc, tempPolyPoints, 4);
 				}
+			}
+
+			delete[] firstPointsArray;
+			if (i != points.size() - 1) {
+				delete[] secondPointsArray;
 			}
 		}
 	}
