@@ -44,6 +44,7 @@ private:
 
 	void drawGraph(HDC dc);
 	void drawAxes(HDC dc);
+	void fillPolygons( HDC dc, std::vector< std::vector < std::pair<double, double> > > &points );
 
 	static LRESULT __stdcall windowProc(HWND handle, UINT message, WPARAM wParam, LPARAM lParam);
 };

@@ -215,21 +215,6 @@ void GraphWindow::drawGraph(HDC dc) {
 		for( size_t j = 0; j < size; ++j ) {
 		//	::LineTo(dc, round(points[i][j].first), round(points[i][j].second));
 			lppoints[j] = { round( points[i][j].first ), round( points[i][j].second ) };
-
-			if (i == 15) {
-				if (j == 15) {
-					test[0] = lppoints[j];
-				} else if (j == 16) {
-					test[1] = lppoints[j];
-				}
-			} else if (i == 16) {
-				if (j == 15) {
-					test[3] = lppoints[j];
-				} else if (j == 16) {
-					test[2] = lppoints[j];
-				}
-			}
-
 		}
 		::PolyBezier( dc, lppoints, size );
 
@@ -252,9 +237,7 @@ void GraphWindow::drawGraph(HDC dc) {
 		delete[] lppoints;
 	}
 
-	HBRUSH brushFill = ::CreateSolidBrush( RGB( 255, 0, 0 ) );
-	::SelectObject( dc, brushFill );
-	::Polygon( dc, test, 4 );
+	fillPolygons( dc, points );
 
 	::DeleteObject(linePen);
 }
@@ -297,6 +280,48 @@ void GraphWindow::drawAxes(HDC dc) {
 	::SetTextColor(dc, RGB(100, 200, 200));
 	::TextOut(dc, round(origin.first + zAxis.first * 200), round(origin.second + zAxis.second * 200),
 		(LPCWSTR)std::wstring(text.begin(), text.end()).c_str(), text.length());
+}
+
+void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<double, double> > > &points) {
+	HBRUSH brushFill = ::CreateSolidBrush( RGB( 255, 0, 0 ) );
+	::SelectObject( dc, brushFill );
+
+	POINT* firstPointsArray;
+	POINT* secondPointsArray;
+
+	if (points.size() > 1) {
+		for (size_t i = 0; i < points.size(); ++i) {
+			int firstSize = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
+			firstPointsArray = new POINT[firstSize];
+			for (size_t j = 0; j < firstSize; ++j) {
+				firstPointsArray[j] = { round( points[i][j].first ), round( points[i][j].second ) };
+			}
+
+			int secondSize = 0;
+
+			if (i != points.size() - 1) {
+				secondSize = points[i+1].size() % 3 == 0 ? points[i+1].size() - 2 : 3 * (points[i+1].size() / 3) + 1;
+				secondPointsArray = new POINT[secondSize];
+				for (size_t j = 0; j < secondSize; ++j) {
+					secondPointsArray[j] = { round( points[i+1][j].first ), round( points[i+1][j].second ) };
+				}
+			}
+
+			int size = min( firstSize, secondSize );
+
+			if (size > 0) {
+				for (size_t t = 0; t < size - 1; ++t) {
+					POINT tempPolyPoints[4];
+					tempPolyPoints[0] = firstPointsArray[t];
+					tempPolyPoints[1] = firstPointsArray[t+1];
+					tempPolyPoints[2] = secondPointsArray[t+1];
+					tempPolyPoints[3] = secondPointsArray[t];
+					::Polygon(dc, tempPolyPoints, 4);
+				}
+			}
+		}
+	}
+	::DeleteObject( brushFill );
 }
 
 
