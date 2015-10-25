@@ -2,6 +2,8 @@
 #include <Windowsx.h>
 
 #include "graphWindow.h"
+using namespace Gdiplus;
+#pragma comment (lib,"Gdiplus.lib")
 
 GraphWindow::GraphWindow(int width, int height, MathCore &mathCore) :
 	windowWidth(width),
@@ -281,28 +283,73 @@ void GraphWindow::drawAxes(HDC dc) {
 		(LPCWSTR)std::wstring(text.begin(), text.end()).c_str(), text.length());
 }
 
-void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<double, double> > > &points) {
-	HBRUSH brushFill = ::CreateSolidBrush( RGB( 255, 0, 0 ) );
-	::SelectObject( dc, brushFill );
+struct polyWrap {
+	PointF poly[4];
+};
 
-	POINT* firstPointsArray;
-	POINT* secondPointsArray;
+void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<double, double> > > &points) {
+	Graphics graphics( dc );
+	
+	std::vector< std::vector< double > > zCoordinates = graphInPoints.getPoints();
+
+	int indexXmax, indexYmax, indexXmin, indexYmin;
+	double max, min;
+
+	indexXmax = 0;
+	indexXmin = 0;
+	indexYmax = 0;
+	indexYmin = 0;
+	max = zCoordinates[0][0];
+	min = zCoordinates[0][0];
+
+
+	for (int i = 0; i < zCoordinates.size(); ++i) {
+		for (int j = 0; j < zCoordinates[i].size(); ++j) {
+			if (zCoordinates[i][j] <= min) {
+				min = zCoordinates[i][j];
+				indexXmin = i;
+				indexYmin = j;
+			}
+
+			if (zCoordinates[i][j] >= max) {
+				indexXmax = i;
+				indexYmax = j;
+			}
+		}
+	}
+
+	LinearGradientBrush linGrBrush(
+		Point((int)points[indexXmax][indexYmax].first, (int)points[indexXmax][indexYmax].second),
+		Point((int)points[indexXmin][indexYmin].first, (int)points[indexXmin][indexYmin].second),
+		Color(255, 255, 0, 0),   // opaque red
+		Color(255, 0, 0, 255));  // opaque blue
+
+
+	//graphics.FillRectangle( &linGrBrush, 0, 0, 200, 200 );
+
+	//graphics.FillRectangle( &linGrBrush, 300, 0, 200, 200 );
+
+	
+	PointF* firstPointsArray;
+	PointF* secondPointsArray;
+
+	std::vector< polyWrap > cells;
 
 	if (points.size() > 1) {
 		for (size_t i = 0; i < points.size(); ++i) {
 			int firstSize = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
-			firstPointsArray = new POINT[firstSize];
+			firstPointsArray = new PointF[firstSize];
 			for (size_t j = 0; j < firstSize; ++j) {
-				firstPointsArray[j] = { round( points[i][j].first ), round( points[i][j].second ) };
+				firstPointsArray[j] = PointF( points[i][j].first, points[i][j].second );
 			}
 
 			int secondSize = 0;
 
 			if (i != points.size() - 1) {
 				secondSize = points[i+1].size() % 3 == 0 ? points[i+1].size() - 2 : 3 * (points[i+1].size() / 3) + 1;
-				secondPointsArray = new POINT[secondSize];
+				secondPointsArray = new PointF[secondSize];
 				for (size_t j = 0; j < secondSize; ++j) {
-					secondPointsArray[j] = { round( points[i+1][j].first ), round( points[i+1][j].second ) };
+					secondPointsArray[j] = PointF( points[i][j].first, points[i][j].second );
 				}
 			}
 
@@ -310,12 +357,13 @@ void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<doub
 
 			if (size > 0) {
 				for (size_t t = 0; t < size - 1; ++t) {
-					POINT tempPolyPoints[4];
-					tempPolyPoints[0] = firstPointsArray[t];
-					tempPolyPoints[1] = firstPointsArray[t+1];
-					tempPolyPoints[2] = secondPointsArray[t+1];
-					tempPolyPoints[3] = secondPointsArray[t];
-					::Polygon(dc, tempPolyPoints, 4);
+					polyWrap wrap;
+					wrap.poly[0] = firstPointsArray[t];
+					wrap.poly[1] = firstPointsArray[t+1];
+					wrap.poly[2] = secondPointsArray[t+1];
+					wrap.poly[3] = secondPointsArray[t];
+					
+					cells.push_back( wrap );
 				}
 			}
 
@@ -325,7 +373,12 @@ void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<doub
 			}
 		}
 	}
-	::DeleteObject( brushFill );
+
+	for (int i = 0; i < cells.size(); ++i) {
+		graphics.FillPolygon( &linGrBrush, cells[i].poly, 4 );
+	}
+
+	graphics.FillPolygon( &linGrBrush, cells[150].poly, 4 );
 }
 
 

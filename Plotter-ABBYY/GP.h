@@ -50,6 +50,10 @@ public:
 	// возвращает координаты пересечения осей в 2d
 	std::pair<double, double> getOriginCoordinates();
 	// проставляет значения начала координат
+
+	// возвращает значения Z для пары XY
+	std::vector<std::vector<double>> getPoints();
+
 private:
 	// Пересчет положения точек относительно осей
 	void calculateRelativePoints();

@@ -4,6 +4,10 @@
 #include "mathCore.h"
 
 int _stdcall wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR commandLine, int nCmdShow) {
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	ULONG_PTR gdiplusToken;
+	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
 	if (!GraphWindow::RegisterClass(hInstance)) {
 		return 1;
 	}
@@ -33,6 +37,8 @@ int _stdcall wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR comma
 	}
 
 	//delete(mainWindow);
+
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return message.wParam;
 }
