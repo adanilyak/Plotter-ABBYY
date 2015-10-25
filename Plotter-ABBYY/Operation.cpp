@@ -1,4 +1,5 @@
 #include "operation.h"
+#include <vector>
 
 std::function<double()> PlusOperation::build( const pugi::xml_node& currentNode ) const
 {
@@ -6,12 +7,15 @@ std::function<double()> PlusOperation::build( const pugi::xml_node& currentNode 
 	if (curArg.empty()) {
 		//error
 	}
-	return [=]() {
+	std::vector<std::function<double()>> funcs;
+	while( !curArg.empty() ) {
+		funcs.push_back( OperationHandler::getOperation( curArg.name() ).build( curArg ) );
+		curArg = curArg.next_sibling();
+	}
+	return [funcs]() {
 		double res = 0;
-		pugi::xml_node currentNode = curArg;
-		while( !currentNode.empty() ) {
-			res += OperationHandler::getOperation( currentNode.name() ).build( currentNode ) ();
-			currentNode = currentNode.next_sibling();
+		for( auto func : funcs ) {
+			res += func();
 		}
 		return res;
 	};
@@ -39,12 +43,15 @@ std::function<double()> TimesOperation::build( const pugi::xml_node& currentNode
 	if (curArg.empty()) {
 		//error
 	}
-	return [=] () {
+	std::vector<std::function<double()>> funcs;
+	while( !curArg.empty() ) {
+		funcs.push_back( OperationHandler::getOperation( curArg.name() ).build( curArg ) );
+		curArg = curArg.next_sibling();
+	}
+	return [funcs] () {
 		double res = 1;
-		pugi::xml_node curNode = curArg;
-		while( !curNode.empty( ) ) {
-			res *= OperationHandler::getOperation( curNode.name() ).build( curNode ) ();
-			curNode = curNode.next_sibling();
+		for( auto func : funcs ) {
+			res *= func();
 		}
 		return res;
 	};
@@ -54,7 +61,7 @@ std::function<double()> TimesOperation::build( const pugi::xml_node& currentNode
 std::function<double()> Ident::build( const pugi::xml_node& currentNode ) const
 {
 	//TODO: var is not found
-	return [=] {
+	return [currentNode] {
 		return OperationHandler::getVar( currentNode.text().as_string() );
 	};
 }
@@ -62,7 +69,7 @@ std::function<double()> Ident::build( const pugi::xml_node& currentNode ) const
 std::function<double()> Number::build( const pugi::xml_node& currentNode ) const
 {
 	//TODO: var is not found
-	return [=] {
+	return [currentNode] {
 		return currentNode.text().as_double();
 	};
 }
