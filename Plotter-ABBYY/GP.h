@@ -46,13 +46,12 @@ public:
 	std::pair<double, double> getAxisVectorVisual( int axisNum );
 	// возвращает координаты пересечения осей в 2d
 	std::pair<double, double> getOriginCoordinates();
-	// проставляет значения начала координат
 private:
 	// Пересчет положения точек относительно осей
 	void calculateRelativePoints();
 
-	void GP::rotateToStartAngle();
-	void GP::rotateToCurrentAngle();
+	void rotateToStartAngle();
+	void rotateToCurrentAngle();
 
 	void turnAroundAxis( int axisNumber, int angle = 1 );
 
@@ -68,8 +67,6 @@ private:
 
 	// Считает значения функции в конкретных точках
 	MathMlCalculator calc;
-	// Будет ли график плоским
-	bool is2D;
 
 	// длина отрезка сетки
 	double lengthOfSection;

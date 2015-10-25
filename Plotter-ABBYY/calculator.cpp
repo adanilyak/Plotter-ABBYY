@@ -127,9 +127,10 @@
 //	}
 //}
 
-static pugi::xml_document doc;
+pugi::xml_document MathMlCalculator::doc;
 
-MathMlCalculator::MathMlCalculator(const wchar_t* formulaPath) :
+MathMlCalculator::MathMlCalculator(const wchar_t* formulaPath, bool _is2D) :
+	is2D( _is2D ),
 	scale( 1 ),
 	globalXShift( 0 ),
 	globalYShift( 0 ),
@@ -149,8 +150,8 @@ void MathMlCalculator::RecalculatePoints( int _gridSize )
 		if( !is2D ) {
 			zPoints[i].resize( gridSize );
 			for( int j = 0; j < gridSize; j++ ) {
-				OperationHandler::setVar( "x", GetX(i, j) );
-				OperationHandler::setVar( "y", GetY(i, j) );
+				OperationHandler::setVar( "x", GetX( i, j ) );
+				OperationHandler::setVar( "y", GetY( i, j ) );
 				zPoints[i][j] = scale * ( zFormula() - globalZShift );
 			}
 		} else {
@@ -159,6 +160,11 @@ void MathMlCalculator::RecalculatePoints( int _gridSize )
 			zPoints[i][0] = scale * (zFormula() - globalZShift);
 		}
 	}
+}
+
+void MathMlCalculator::RecalculatePoints()
+{
+	RecalculatePoints( gridSize );
 }
 
 double MathMlCalculator::GetX( int i, int j )
@@ -203,10 +209,7 @@ bool MathMlCalculator::Is2D()
 
 void MathMlCalculator::buildFormula( const pugi::xml_node& formulaRoot )
 {
-	zFormula = [&]() -> double {
-		pugi::xml_node curArg = formulaRoot.first_child();
-		return OperationHandler::getOperation(curArg.name()).build(curArg);
-	};
+	zFormula = OperationHandler::getOperation( formulaRoot.first_child().name() ).build( formulaRoot.first_child() );
 }
 
 int MathMlCalculator::GetGridSize()

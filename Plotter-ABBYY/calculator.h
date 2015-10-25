@@ -37,9 +37,10 @@
 class MathMlCalculator/*: Calculator*/ {
 public:
 	MathMlCalculator() {}
-	MathMlCalculator( const wchar_t* formulaPath );
+	MathMlCalculator( const wchar_t* formulaPath, bool is2D = false );
 
 	void RecalculatePoints( int gridSize );
+	void RecalculatePoints();
 
 	//double countExpression(double xArgument, double yArgument);
 	double GetX( int i, int j );
@@ -55,13 +56,15 @@ public:
 	int GetGridSize();
 private:
 	void buildFormula(const pugi::xml_node& formulaRoot);
-	std::function<double()> xFormula;
-	std::function<double()> yFormula;
+	std::function<double( double x, double y )> xFormula;
+	std::function<double( double x, double y )> yFormula;
 	std::function<double()> zFormula;
 
 	int gridSize;
 
-	bool is2D = false;
+	bool is2D;
+
+	static pugi::xml_document doc;
 
 	std::vector<std::vector<double>> xPoints;
 	std::vector<std::vector<double>> yPoints;

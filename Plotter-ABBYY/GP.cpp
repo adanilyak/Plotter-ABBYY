@@ -8,15 +8,14 @@
 // получает на вход точки, длину стороны сетки, и углы под которыми расположены оси по отношению к стандартному положению оси X(----->)
 GP::GP( const wchar_t* formulaPath, bool _is2D,
 	double inputLengthOfSection, std::pair<double, double>& inputWindowSize ) :
-	is2D( _is2D ),
 	lengthOfSection( inputLengthOfSection ),
 	windowSize( inputWindowSize )
 {
-	calc = MathMlCalculator( formulaPath );
+	calc = MathMlCalculator( formulaPath, _is2D );
 
 	origin.first = windowSize.first / 2;
 	origin.second = windowSize.second / 2;
-	anglesOfAxis = is2D ? std::vector<double>{0, 90, 90} : std::vector<double>{ -30, 40, 90 };
+	anglesOfAxis = calc.Is2D() ? std::vector<double>{0, 90, 90} : std::vector<double>{ -30, 40, 90 };
 	relativeAxis.resize( 3 );
 	relativeAxis[0] = Vector( 1, 0, 0 );
 	relativeAxis[1] = Vector( 0, 1, 0 );
@@ -55,7 +54,7 @@ void GP::turnAroundAxis( int axisNumber, int angle ) {
 
 void GP::turnLeft()
 {
-	if( is2D ) {
+	if( calc.Is2D() ) {
 		moveAlongX( 1 );
 	} else {
 		turnAroundAxis( 2, -1 );
@@ -63,7 +62,7 @@ void GP::turnLeft()
 }
 void GP::turnRight()
 {
-	if( is2D ) {
+	if( calc.Is2D() ) {
 		moveAlongX( -1 );
 	} else {
 		turnAroundAxis( 2, 1 );
@@ -71,7 +70,7 @@ void GP::turnRight()
 }
 void GP::turnUp()
 {
-	if( is2D ) {
+	if( calc.Is2D() ) {
 		moveAlongZ( -1 );
 	} else {
 		turnAroundAxis( 1, 1 );
@@ -79,7 +78,7 @@ void GP::turnUp()
 }
 void GP::turnDown()
 {
-	if( is2D ) {
+	if( calc.Is2D() ) {
 		moveAlongZ( 1 );
 	} else {
 		turnAroundAxis( 1, -1 );
@@ -135,8 +134,7 @@ void GP::moveAlongX( int num ) {
 	
 	calc.GlobalXShift() += num;
 
-	double size = (windowSize.first > windowSize.second) ? windowSize.first : windowSize.second;
-	calc.RecalculatePoints( 4 * (int) (size / lengthOfSection) );
+	calc.RecalculatePoints();
 
 	rotateToCurrentAngle();
 	calculateRelativePoints();
@@ -147,8 +145,7 @@ void GP::moveAlongY( int num ) {
 
 	calc.GlobalYShift() += num;
 
-	double size = (windowSize.first > windowSize.second) ? windowSize.first : windowSize.second;
-	calc.RecalculatePoints( 4 * (int) (size / lengthOfSection) );
+	calc.RecalculatePoints();
 
 	rotateToCurrentAngle();
 	calculateRelativePoints();
@@ -160,8 +157,7 @@ void GP::moveAlongZ( int num )
 
 	calc.GlobalZShift() += num;
 
-	double size = (windowSize.first > windowSize.second) ? windowSize.first : windowSize.second;
-	calc.RecalculatePoints( 4 * (int) (size / lengthOfSection) );
+	calc.RecalculatePoints();
 
 	rotateToCurrentAngle();
 	calculateRelativePoints();
@@ -194,7 +190,7 @@ void GP::calculateRelativePoints() {
 	std::pair<double, double> z = getAxisVectorVisual( 2 );
 	relativePoints.resize( calc.GetGridSize() );
 	for( int i = 0; i < relativePoints.size(); i++ ) {
-		if( !is2D ) {
+		if( !calc.Is2D() ) {
 			relativePoints[i].resize( calc.GetGridSize() );
 			for( int j = 0; j < relativePoints[i].size(); j++ ) {
 				double xRel = origin.first + x.first * calc.GetX( i, j ) * lengthOfSection +

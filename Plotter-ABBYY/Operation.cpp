@@ -1,19 +1,24 @@
 #include "operation.h"
 
-double PlusOperation::build(const pugi::xml_node& currentNode) const {
+std::function<double()> PlusOperation::build( const pugi::xml_node& currentNode ) const
+{
 	pugi::xml_node curArg = currentNode.next_sibling();
 	if (curArg.empty()) {
 		//error
 	}
-	double result = 0;
-	while ( !curArg.empty() ) {
-		result += OperationHandler::getOperation(curArg.name()).build(curArg);
-		curArg = curArg.next_sibling();
-	}
-	return result;
+	return [=]() {
+		double res = 0;
+		pugi::xml_node currentNode = curArg;
+		while( !currentNode.empty() ) {
+			res += OperationHandler::getOperation( currentNode.name() ).build( currentNode ) ();
+			currentNode = currentNode.next_sibling();
+		}
+		return res;
+	};
 }
 
-double MinusOperation::build(const pugi::xml_node& currentNode) const {
+std::function<double()> MinusOperation::build( const pugi::xml_node& currentNode ) const
+{
 	pugi::xml_node minuend = currentNode.next_sibling();
 	if (minuend.empty()) {
 		//error
@@ -22,37 +27,48 @@ double MinusOperation::build(const pugi::xml_node& currentNode) const {
 	if (subtrahend.empty()) {
 		//error
 	}
-	double result = OperationHandler::getOperation(minuend.name()).build(minuend) - 
-					OperationHandler::getOperation(subtrahend.name()).build(subtrahend);
-	return result;
+	return [=]() {
+		return OperationHandler::getOperation( minuend.name() ).build( minuend ) () -
+			OperationHandler::getOperation( subtrahend.name() ).build( subtrahend ) ();
+	};
 }
 
-double TimesOperation::build(const pugi::xml_node& currentNode) const {
+std::function<double()> TimesOperation::build( const pugi::xml_node& currentNode ) const
+{
 	pugi::xml_node curArg = currentNode.next_sibling();
 	if (curArg.empty()) {
 		//error
 	}
-	double result = 1;
-	while (!curArg.empty()) {
-		result *= OperationHandler::getOperation(curArg.name()).build(curArg);
-		//result *= 2;
-		curArg = curArg.next_sibling();
-	}
-	return result;
+	return [=] () {
+		double res = 1;
+		pugi::xml_node curNode = curArg;
+		while( !curNode.empty( ) ) {
+			res *= OperationHandler::getOperation( curNode.name() ).build( curNode ) ();
+			curNode = curNode.next_sibling();
+		}
+		return res;
+	};
 }
 
 
-double Ident::build(const pugi::xml_node& currentNode) const {
+std::function<double()> Ident::build( const pugi::xml_node& currentNode ) const
+{
 	//TODO: var is not found
-	return OperationHandler::getVar(currentNode.text().as_string());
+	return [=] {
+		return OperationHandler::getVar( currentNode.text().as_string() );
+	};
 }
 
-double Number::build(const pugi::xml_node& currentNode) const {
+std::function<double()> Number::build( const pugi::xml_node& currentNode ) const
+{
 	//TODO: var is not found
-	return currentNode.text().as_double();
+	return [=] {
+		return currentNode.text().as_double();
+	};
 }
 
-double ApplyOperation::build(const pugi::xml_node& currentNode) const {
+std::function<double()> ApplyOperation::build( const pugi::xml_node& currentNode ) const
+{
 	const pugi::xml_node opNode = currentNode.first_child();
 	return OperationHandler::getOperation(opNode.name()).build(opNode);
 }
@@ -93,5 +109,6 @@ double OperationHandler::getVar(const std::string& varName) {
 void OperationHandler::setVar(const std::string& varName, double value) {
 	vars[varName] = value;
 }
+
 std::map< std::string, std::unique_ptr<Operation> > OperationHandler::operations = OperationHandler::fillOperations();
 std::map<std::string, double> OperationHandler::vars = OperationHandler::fillVars();
