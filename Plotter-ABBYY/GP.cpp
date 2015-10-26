@@ -37,7 +37,7 @@ void GP::generateGrid() {
 	else {
 		size = windowSize.second;
 	}
-	int gridSize = 20;//4 * (int) (size / lengthOfSection);
+	int gridSize = 4 * (int) (size / lengthOfSection);
 
 	points.resize(gridSize);
 	relativePoints.resize(gridSize);

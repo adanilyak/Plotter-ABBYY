@@ -208,6 +208,8 @@ void GraphWindow::drawGraph(HDC dc) {
 	::SelectObject(dc, linePen);
 
 	std::vector< std::vector < std::pair<double, double> > > points = graphInPoints.getRelativePoints();
+	
+	fillPolygons( dc, points );
 
 	for (size_t i = 0; i < points.size(); ++i) {
 		int size = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
@@ -237,8 +239,6 @@ void GraphWindow::drawGraph(HDC dc) {
 
 		delete[] lppoints;
 	}
-
-	fillPolygons( dc, points );
 
 	::DeleteObject(linePen);
 }
@@ -289,7 +289,12 @@ struct polyWrap {
 
 void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<double, double> > > &points) {
 	Graphics graphics( dc );
-	
+	graphics.SetInterpolationMode(InterpolationModeNearestNeighbor);
+	graphics.SetSmoothingMode(SmoothingModeNone);
+	graphics.SetPixelOffsetMode(PixelOffsetModeNone);
+	graphics.SetCompositingQuality(CompositingQualityHighSpeed);
+	graphics.SetTextRenderingHint(TextRenderingHintSingleBitPerPixel);
+
 	std::vector< std::vector< double > > zCoordinates = graphInPoints.getPoints();
 
 	int indexXmax, indexYmax, indexXmin, indexYmin;
@@ -321,64 +326,88 @@ void GraphWindow::fillPolygons(HDC dc, std::vector< std::vector < std::pair<doub
 	LinearGradientBrush linGrBrush(
 		Point((int)points[indexXmax][indexYmax].first, (int)points[indexXmax][indexYmax].second),
 		Point((int)points[indexXmin][indexYmin].first, (int)points[indexXmin][indexYmin].second),
-		Color(255, 255, 0, 0),   // opaque red
-		Color(255, 0, 0, 255));  // opaque blue
-
-
-	//graphics.FillRectangle( &linGrBrush, 0, 0, 200, 200 );
-
-	//graphics.FillRectangle( &linGrBrush, 300, 0, 200, 200 );
-
-	
-	PointF* firstPointsArray;
-	PointF* secondPointsArray;
+		Color(128, 255, 0, 0),   // opaque red
+		Color(128, 0, 0, 255));  // opaque blue
 
 	std::vector< polyWrap > cells;
 
-	if (points.size() > 1) {
-		for (size_t i = 0; i < points.size(); ++i) {
-			int firstSize = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
-			firstPointsArray = new PointF[firstSize];
-			for (size_t j = 0; j < firstSize; ++j) {
-				firstPointsArray[j] = PointF( points[i][j].first, points[i][j].second );
-			}
+	PointF test[4];
+	PointF test1[4];
 
-			int secondSize = 0;
+	for (size_t i = 0; i < points.size() - 1; ++i) {
+		int firstSize = points[i].size() % 3 == 0 ? points[i].size() - 2 : 3 * (points[i].size() / 3) + 1;
+		PointF* firstPointsArray = new PointF[firstSize];
+		for (size_t j = 0; j < firstSize; ++j) {
+			firstPointsArray[j] = PointF( points[i][j].first, points[i][j].second );
 
-			if (i != points.size() - 1) {
-				secondSize = points[i+1].size() % 3 == 0 ? points[i+1].size() - 2 : 3 * (points[i+1].size() / 3) + 1;
-				secondPointsArray = new PointF[secondSize];
-				for (size_t j = 0; j < secondSize; ++j) {
-					secondPointsArray[j] = PointF( points[i][j].first, points[i][j].second );
+			if (i == 0) {
+				if (j == 0) {
+					test[0] = firstPointsArray[j];
+				} else if (j == 1) {
+					test[1] = firstPointsArray[j];
+				}
+			} else if (i == 1) {
+				if (j == 0) {
+					test[3] = firstPointsArray[j];
+				} else if (j == 1) {
+					test[2] = firstPointsArray[j];
 				}
 			}
 
-			int size = min( firstSize, secondSize );
-
-			if (size > 0) {
-				for (size_t t = 0; t < size - 1; ++t) {
-					polyWrap wrap;
-					wrap.poly[0] = firstPointsArray[t];
-					wrap.poly[1] = firstPointsArray[t+1];
-					wrap.poly[2] = secondPointsArray[t+1];
-					wrap.poly[3] = secondPointsArray[t];
-					
-					cells.push_back( wrap );
+			if (i == 16) {
+				if (j == 15) {
+					test1[0] = firstPointsArray[j];
+				} else if (j == 16) {
+					test1[1] = firstPointsArray[j];
+				}
+			} else if (i == 17) {
+				if (j == 15) {
+					test1[3] = firstPointsArray[j];
+				} else if (j == 16) {
+					test1[2] = firstPointsArray[j];
 				}
 			}
 
-			delete[] firstPointsArray;
-			if (i != points.size() - 1) {
-				delete[] secondPointsArray;
-			}
 		}
+
+		int secondSize = points[i+1].size() % 3 == 0 ? points[i+1].size() - 2 : 3 * (points[i+1].size() / 3) + 1;
+		PointF* secondPointsArray = new PointF[secondSize];
+		for (size_t j = 0; j < secondSize; ++j) {
+			secondPointsArray[j] = PointF( points[i+1][j].first, points[i+1][j].second );
+		}
+
+		int size = min( firstSize, secondSize );
+
+		for (size_t t = 0; t < size - 1; ++t) {
+			polyWrap wrap;
+			wrap.poly[0] = firstPointsArray[t];
+			wrap.poly[1] = firstPointsArray[t+1];
+			wrap.poly[2] = secondPointsArray[t+1];
+			wrap.poly[3] = secondPointsArray[t];
+					
+			cells.push_back( wrap );
+		}
+
+		delete[] firstPointsArray;
+		delete[] secondPointsArray;
 	}
 
-	for (int i = 0; i < cells.size(); ++i) {
-		graphics.FillPolygon( &linGrBrush, cells[i].poly, 4 );
-	}
 
-	graphics.FillPolygon( &linGrBrush, cells[150].poly, 4 );
+	std::vector < Status > statuses;
+	for (int i = 0; i < cells.size(); i++) {
+		Status res = graphics.FillPolygon( &linGrBrush, cells[i].poly, 4 );
+		statuses.push_back( res );
+	}
+	/*
+	PointF test2[4];
+	test2[0] = cells[612].poly[0];
+	test2[1] = cells[612].poly[1];
+	test2[2] = cells[612].poly[2];
+	//test2[3] = cells[612].poly[3];
+	graphics.FillPolygon( &linGrBrush, test2, 3 );
+*/
+	Status res1 = graphics.FillPolygon( &linGrBrush, test, 4 );
+	Status res2 = graphics.FillPolygon( &linGrBrush, test1, 4 );
 }
 
 
